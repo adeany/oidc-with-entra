@@ -4,25 +4,28 @@
 
 ### a. Create an AAD Enterprise Application and the Corresponding App Registration
 
-* Go to the Azure portal, navigate to Azure Active Directory > App registrations > New registration.
-* Provide a name for the application, select the supported account types, and provide a redirect URI (usually the URL of your Kubernetes API server).
-* After the application is registered, note down the Application (client) ID and the Tenant ID. These will be used in the Kubernetes configuration.
+* Go to the Azure portal, navigate to Azure Active Directory > App registrations > New registration
+* Provide a name for the application, select the supported account types, and provide a redirect URI (usually the URL of your Kubernetes API server)
+* After the application is registered, note down the Application (client) ID and the Tenant ID. These will be used in the Kubernetes configuration
 
-### b. Check the Allow Public Client Flows Checkbox
+### b. Check the Allow Public Client Flows Checkbox and Configure
 
-* Go to your App Registration > Authentication
-* Toggle "Allow public client flows" to "Yes"
+* Go to your App Registration > Authentication > Toggle "Allow public client flows" to "Yes"
+![Allow public client flows](./images/client-flows.png)
+* Go to your App Registration > Token Configuration > Add Groups Claim > Select Security Group > Save
+![Add groups claim](./images/groups-claim.png)
 
-### c. Configure Groups
+### c. Add a Security Group in Entra
 
-* Go to your App Registration > Token Configuration > Add Groups Claim
-* Select Security Group > Save
 * Navigate to Microsoft Entra ID > Groups > New Group
 * Provide a group name, description, and add the necessary members > Create
+* Make a note of the Object ID of your group. You will need to use this when adding your role binding(s)
+![Entra](./images/entra-oid.png)
+
 
 ## 2. Configure the Kubernetes API Server
 
-You will need
+You will need the following flags configured as API server args on your cluster:
 
 ```
 oidc-issuer-url: https://sts.windows.net/<YOUR_AZURE_AD_TENANT_ID>/
@@ -58,7 +61,7 @@ kubectl config set-credentials "azure-user" \
 
 ## 4. Add the Necessary RoleBinding or ClusterRoleBinding for the Authenticated User 
 
-An example can be found in [group-role-binding.yaml](./group-role-binding.yaml). Make sure to replace the apiGroup name with the Object Id associated with the group you created in Entra.
+An example can be found in [group-role-binding.yaml](./group-role-binding.yaml). Make sure to replace the apiGroup name <YOUR_GROUP_OBJECT_ID> with the Object Id associated with the group you created in Entra.
 
 Don't forget to apply your role bindings with the following command:
 
@@ -76,4 +79,4 @@ kubectl config set-context "$CLUSTER_NAME" --cluster="$CLUSTER_NAME" --user=azur
 kubectl config use-context "$CLUSTER_NAME"
 ```
 
-Now, you are ready to test!
+Now, you are ready to test! You can interact with your cluster as you normally would. Please note that you will be prompted to login to Azure using your credentials.
