@@ -48,6 +48,8 @@ You can see the Kubernetes documentation for optional flags: https://kubernetes.
 
 Exec plugin is one of Kubernetes authentication strategies which allows kubectl to execute an external command to receive user credentials to send to api-server. To interact with an Azure AD enabled Kubernetes cluster, Exec plugin using kubelogin will be required. When using kubelogin in Exec plugin, the kubeconfig tells kubectl to execute kubelogin get-token subcommand to perform various Azure AD login modes to get the access token.
 
+You can find more information on kubelogin at https://github.com/Azure/kubelogin 
+
 You can configure the exec plugin with kubelogin to use the application from the first step by running the following command:
 
 ```
