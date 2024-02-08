@@ -1,5 +1,7 @@
 # Configure OIDC with Entra ID on a Self-Managed cluster
 
+kubelogin can be used to authenticate to general kubernetes clusters using AAD as an OIDC provider.
+
 ## 1. Register an Application in Azure AD
 
 ### a. Create an AAD Enterprise Application and the Corresponding App Registration
