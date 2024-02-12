@@ -1,0 +1,30 @@
+name: Run Azure Login with OIDC
+ 
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Install and configure kubectl
+      run: |
+        curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x ./kubectl
+        sudo mv ./kubectl /usr/local/bin/kubectl
+        echo "${{ secrets.KUBECONFIG }}" | base64 --decode > kubeconfig.yaml
+        echo "KUBECONFIG=kubeconfig.yaml" >> $GITHUB_ENV
+
+    - name: Test kubectl commands
+      run: |
+        kubectl get nodes
+          
