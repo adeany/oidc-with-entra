@@ -25,6 +25,13 @@ jobs:
         echo "${{ secrets.KUBECONFIG }}" | base64 --decode > kubeconfig.yaml
         echo "KUBECONFIG=kubeconfig.yaml" >> $GITHUB_ENV
 
+    - name: Install and configure kubelogin
+      run: |
+        curl -LO https://github.com/Azure/kubelogin/releases/download/v0.0.9/kubelogin-linux-amd64.zip
+        unzip kubelogin-linux-amd64.zip
+        chmod +x ./bin/kubelogin
+        sudo mv ./bin/kubelogin /usr/local/bin
+
     - name: Test kubectl commands
       run: |
         kubectl get nodes
