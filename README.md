@@ -1,4 +1,4 @@
-# Configure OIDC with Entra ID on a Self-Managed cluster
+# Configure OIDC with Entra on a Self-Managed cluster
 
 kubelogin can be used to authenticate to general kubernetes clusters using AAD as an OIDC provider.
 
