@@ -29,18 +29,11 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
         allow-no-subscriptions: true
-    
-    - name: Get Azure AD Token
-      id: azuread
-      run: |
-        echo "::set-output name=token::$(az account get-access-token --query accessToken -o tsv)"
 
     - name: Set kubeconfig
       run: |
         echo "${{ secrets.KUBECONFIG }}" | base64 --decode > kubeconfig.yaml
         export KUBECONFIG=kubeconfig.yaml
-        kubectl config set-credentials azuread --token=${{ steps.azuread.outputs.token }}
-        kubectl config set-context --current --user=azuread
 
     - name: Test kubectl commands
       run: |
