@@ -3,10 +3,6 @@ name: Azure Login
 on:
   workflow_dispatch:
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -14,6 +10,33 @@ jobs:
 
     - name: Checkout code
       uses: actions/checkout@v2
+
+    - name: Install Kind
+      run: |
+        curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.11.1/kind-linux-amd64
+        chmod +x ./kind
+        sudo mv ./kind /usr/local/bin/
+
+    - name: Create Kind Cluster
+      run: |
+        kind create cluster --image kindest/node:v1.29.1 --config -- <EOF
+        kind: Cluster
+        apiVersion: kind.x-k8s.io/v1alpha4
+        kubeadmConfigPatches:
+        - |-
+          kind: ClusterConfiguration
+          apiServer:
+            extraArgs:
+              oidc-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+              oidc-issuer-url: https://sts.windows.net/${{ secrets.AZURE_TENANT_ID }}/
+              oidc-username-claim: oid
+              oidc-groups-claim: groups
+        nodes:
+        - role: control-plane
+          image: kindest/node:v1.29.1
+        - role: worker
+          image: kindest/node:v1.29.1
+        EOF
 
     # - name: Install and configure kubectl
     #   run: |
@@ -33,11 +56,18 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
         allow-no-subscriptions: true
+    
+    - name: Get Azure AD Token
+      id: azuread
+      run: |
+        echo "::set-output name=token::$(az account get-access-token --query accessToken -o tsv)"
 
-    - name: Set kubeconfig
+    - name: Set Kubeconfig
       run: |
         echo "${{ secrets.KUBECONFIG }}" | base64 --decode > kubeconfig.yaml
         export KUBECONFIG=kubeconfig.yaml
+        kubectl config set-credentials azuread --token=${{ steps.azuread.outputs.token }}
+        kubectl config set-context --current --user=azuread
 
     - name: Test kubectl commands
       run: |
