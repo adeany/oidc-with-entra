@@ -5,8 +5,8 @@ kubeadmConfigPatches:
   kind: ClusterConfiguration
   apiServer:
     extraArgs:
-      oidc-client-id: <YOUR_AZURE_AD_CLIENT_ID>
-      oidc-issuer-url: https://sts.windows.net/<YOUR_AZURE_AD_TENANT_ID>/
+      oidc-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+      oidc-issuer-url: https://sts.windows.net/${{ secrets.AZURE_TENANT_ID }}/
       oidc-username-claim: oid
       oidc-groups-claim: groups
 nodes:

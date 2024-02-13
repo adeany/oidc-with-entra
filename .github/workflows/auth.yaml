@@ -19,24 +19,7 @@ jobs:
 
     - name: Create Kind Cluster
       run: |
-        kind create cluster --image kindest/node:v1.29.1 --config -- <EOF
-        kind: Cluster
-        apiVersion: kind.x-k8s.io/v1alpha4
-        kubeadmConfigPatches:
-        - |-
-          kind: ClusterConfiguration
-          apiServer:
-            extraArgs:
-              oidc-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-              oidc-issuer-url: https://sts.windows.net/${{ secrets.AZURE_TENANT_ID }}/
-              oidc-username-claim: oid
-              oidc-groups-claim: groups
-        nodes:
-        - role: control-plane
-          image: kindest/node:v1.29.1
-        - role: worker
-          image: kindest/node:v1.29.1
-        EOF
+        kind create cluster --image kindest/node:v1.29.1 --config cluster-config.yaml
 
     # - name: Install and configure kubectl
     #   run: |
