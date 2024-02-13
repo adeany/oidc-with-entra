@@ -3,6 +3,10 @@ name: Azure Login
 on:
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -11,18 +15,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install and configure kubectl
-      run: |
-        curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
-        chmod +x ./kubectl
-        sudo mv ./kubectl /usr/local/bin/kubectl
+    # - name: Install and configure kubectl
+    #   run: |
+    #     curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+    #     chmod +x ./kubectl
+    #     sudo mv ./kubectl /usr/local/bin/kubectl
 
-    - name: Install and configure kubelogin
-      run: |
-        curl -LO https://github.com/Azure/kubelogin/releases/download/v0.0.9/kubelogin-linux-amd64.zip
-        unzip kubelogin-linux-amd64.zip
-        chmod +x ./bin/linux_amd64/kubelogin
-        sudo mv ./bin/linux_amd64/kubelogin /usr/local/bin
+    # - name: Install and configure kubelogin
+    #   run: |
+    #     curl -LO https://github.com/Azure/kubelogin/releases/download/v0.0.9/kubelogin-linux-amd64.zip
+    #     unzip kubelogin-linux-amd64.zip
+    #     chmod +x ./bin/linux_amd64/kubelogin
+    #     sudo mv ./bin/linux_amd64/kubelogin /usr/local/bin
 
     - name: Azure Login
       uses: azure/login@v1
