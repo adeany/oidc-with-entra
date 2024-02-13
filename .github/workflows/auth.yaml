@@ -19,7 +19,7 @@ jobs:
 
     - name: Create Kind Cluster
       run: |
-        kind create cluster --image kindest/node:v1.29.1 --config cluster-config.yaml
+        kind create cluster --image kindest/node:v1.29.1 --config ../../cluster-config.yaml
 
     # - name: Install and configure kubectl
     #   run: |
