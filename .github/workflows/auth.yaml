@@ -11,46 +11,38 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install Kind
+    - name: Install and configure kubectl
       run: |
-        curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.11.1/kind-linux-amd64
-        chmod +x ./kind
-        sudo mv ./kind /usr/local/bin/
+        curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x ./kubectl
+        sudo mv ./kubectl /usr/local/bin/kubectl
 
-    - name: Create Kind Cluster
+    - name: Install and configure kubelogin
       run: |
-        kind create cluster --image kindest/node:v1.29.1 --config cluster-config.yaml
-
-    # - name: Install and configure kubectl
-    #   run: |
-    #     curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
-    #     chmod +x ./kubectl
-    #     sudo mv ./kubectl /usr/local/bin/kubectl
-
-    # - name: Install and configure kubelogin
-    #   run: |
-    #     curl -LO https://github.com/Azure/kubelogin/releases/download/v0.0.9/kubelogin-linux-amd64.zip
-    #     unzip kubelogin-linux-amd64.zip
-    #     chmod +x ./bin/linux_amd64/kubelogin
-    #     sudo mv ./bin/linux_amd64/kubelogin /usr/local/bin
+        curl -LO https://github.com/Azure/kubelogin/releases/download/v0.0.9/kubelogin-linux-amd64.zip
+        unzip kubelogin-linux-amd64.zip
+        chmod +x ./bin/linux_amd64/kubelogin
+        sudo mv ./bin/linux_amd64/kubelogin /usr/local/bin
 
     - name: Azure Login
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
         allow-no-subscriptions: true
-    
-    - name: Get Azure AD Token
-      id: azuread
-      run: |
-        echo "::set-output name=token::$(az account get-access-token --query accessToken -o tsv)"
+
+    # - name: Set Kubeconfig
+    #   run: |
+    #     kubelogin convert-kubeconfig -l spn --client-id ${{ secrets.AZURE_CLIENT_ID }} --client-secret ${{ secrets.AZURE_CLIENT_SECRET }}
+    #     echo "${{ secrets.KUBECONFIG }}" | base64 --decode > kubeconfig.yaml
+    #     export KUBECONFIG=kubeconfig.yaml
+    #     kubelogin convert-kubeconfig -l spn --client-id ${{ secrets.AZURE_CLIENT_ID }} --client-secret ${{ secrets.AZURE_CLIENT_SECRET }}
+    #     kubectl config set-credentials azuread --token=${{ steps.azuread.outputs.token }}
+    #     kubectl config set-context --current --user=azuread
 
     - name: Set Kubeconfig
       run: |
         echo "${{ secrets.KUBECONFIG }}" | base64 --decode > kubeconfig.yaml
         export KUBECONFIG=kubeconfig.yaml
-        kubectl config set-credentials azuread --token=${{ steps.azuread.outputs.token }}
-        kubectl config set-context --current --user=azuread
 
     - name: Test kubectl commands
       run: |
